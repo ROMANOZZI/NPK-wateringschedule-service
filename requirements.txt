@@ -1,0 +1,6 @@
+xgboost 
+joblib
+fastapi
+uvicorn
+mangum
+scikit-learn
