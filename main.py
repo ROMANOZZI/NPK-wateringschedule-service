@@ -4,11 +4,13 @@ import xgboost as xgb
 from joblib import  load
 from fastapi import FastAPI
 from mangum import Mangum
-import uvicorn
+
 import json
+import pickle
 
 
 app=FastAPI()
+
 
 
 
@@ -23,13 +25,35 @@ def predict(matrix: str):
    new_data=sc.transform([matrix])
    new_data = xgb.DMatrix(new_data)
    prediction = bst.predict(new_data)
-   return int(prediction)
+   return {"prediction":int(prediction)}
+@app.get('/predictWatering')
+def Predict(params:str):
+   params=json.loads(params)
+   with open('models/knn_model.pkl', 'rb') as file:
+    loaded_model = pickle.load(file)
+   with open('models/scaler.pkl', 'rb') as file:
+    scaler = pickle.load(file)
+   params=scaler.transform([params])
+   prediction = loaded_model.predict(params)
+   return {"prediction":int(prediction)}
 
+   
+   
+@app.get('/predictWatering')
+def Predict(params:str):
+   params=json.loads(params)
+   with open('models/knn_model.pkl', 'rb') as file:
+    loaded_model = pickle.load(file)
+   with open('models/scaler.pkl', 'rb') as file:
+    scaler = pickle.load(file)
+   params=scaler.transform([params])
+   prediction = loaded_model.predict(params)
+   return {"prediction":int(prediction)}
+
+   
 if __name__ == '__main__':
-   import uvicorn
-    
-   uvicorn.run("main:app",  port=9000, log_level="info")
-handler = Mangum(app)
+    import uvicorn
+    uvicorn.run(app ,host="127.0.0.1",port=9000)
 
 
 
@@ -51,3 +75,4 @@ handler = Mangum(app)
 # temprature
 # humidity
 # soil moisture 
+
